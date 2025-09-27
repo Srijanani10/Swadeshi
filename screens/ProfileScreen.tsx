@@ -162,7 +162,7 @@ const ProfileScreen: React.FC = () => {
           {/* Seasonal Smart Bundles */}
           <TouchableOpacity
             style={styles.menuButton}
-            onPress={() => navigation.navigate('SmartBundles')}
+            onPress={() => navigation.navigate('BundleDetails')}
           >
             <Icon name="gift" size={18} color="#333" style={styles.menuIcon} />
             <Text style={styles.menuText}>Seasonal Smart Bundles</Text>
