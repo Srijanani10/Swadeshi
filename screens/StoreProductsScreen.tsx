@@ -1,62 +1,94 @@
-import React, { useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
-  TouchableOpacity,
   Image,
+  TouchableOpacity,
+  StyleSheet,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import Header from "../components/Header";
+import { CartContext } from "../context/CartContext";
 import { useRoute } from "@react-navigation/native";
 
+// Product type
 type Product = {
   id: number;
-  name: string;
+  title: string;
   price: number;
   image: string;
-  storeId: number;
 };
 
-// Sample products mapped to storeId
-const products: Product[] = [
-  { id: 1, name: "Soap", price: 25, image: "https://via.placeholder.com/80", storeId: 1 },
-  { id: 2, name: "Organic Honey", price: 350, image: "https://via.placeholder.com/80", storeId: 1 },
-  { id: 3, name: "Saree", price: 1200, image: "https://via.placeholder.com/80", storeId: 2 },
-  { id: 4, name: "Jute Bag", price: 400, image: "https://via.placeholder.com/80", storeId: 2 },
-  { id: 5, name: "Wooden Toy", price: 250, image: "https://via.placeholder.com/80", storeId: 3 },
-  { id: 6, name: "Plant Pot", price: 150, image: "https://via.placeholder.com/80", storeId: 3 },
+// Store type
+type Store = {
+  id: number;
+  name: string;
+  productIds: number[]; // Product IDs belonging to this store
+};
+
+// Sample stores
+const stores: Store[] = [
+  { id: 1, name: "Handloom Emporium", productIds: [3, 5, 6] },
+  { id: 2, name: "Organic Mart", productIds: [1, 2, 7] },
+  { id: 3, name: "Eco Store", productIds: [4, 8, 9] },
 ];
 
 export default function StoreProductsScreen() {
   const route = useRoute<any>();
   const { storeId } = route.params;
-  const [searchText, setSearchText] = useState("");
-  const [cart, setCart] = useState<{ [key: number]: number }>({});
+  const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
 
-  const storeProducts = products.filter(
-    (p) =>
-      p.storeId === storeId &&
-      p.name.toLowerCase().includes(searchText.toLowerCase())
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState("");
+
+  const store = stores.find((s) => s.id === storeId);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (!store) return;
+
+      try {
+        const res = await fetch("https://fakestoreapi.com/products");
+        const data: Product[] = await res.json();
+
+        // Filter products for this store based on store.productIds
+        const storeProducts = data.filter((p) => store.productIds.includes(p.id));
+        setProducts(storeProducts);
+      } catch (error) {
+        console.log("Error fetching products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [store]);
+
+  if (!store) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Store not found</Text>
+      </View>
+    );
+  }
+
+  const filteredProducts = products.filter((product) =>
+    product.title.toLowerCase().includes(searchText.toLowerCase())
   );
 
-  const addToCart = (productId: number) => setCart({ ...cart, [productId]: 1 });
-  const increaseQuantity = (productId: number) =>
-    setCart({ ...cart, [productId]: cart[productId] + 1 });
-  const decreaseQuantity = (productId: number) => {
-    const qty = cart[productId] - 1;
-    if (qty <= 0) {
-      const newCart = { ...cart };
-      delete newCart[productId];
-      setCart(newCart);
-    } else {
-      setCart({ ...cart, [productId]: qty });
-    }
-  };
+  if (loading) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" color="#28a745" />
+      </View>
+    );
+  }
 
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1, backgroundColor: "#f9f9f9" }}>
       <Header />
 
       {/* Search Bar */}
@@ -69,73 +101,90 @@ export default function StoreProductsScreen() {
         />
       </View>
 
-      <ScrollView style={styles.productList}>
-        {storeProducts.map((prod) => (
-          <View style={styles.product} key={prod.id}>
-            <Image source={{ uri: prod.image }} style={styles.productImage} />
-            <View style={styles.productInfo}>
-              <Text style={styles.productName}>{prod.name}</Text>
-              <Text style={styles.productPrice}>₹{prod.price}</Text>
-            </View>
+      <ScrollView style={{ padding: 10 }}>
+        <Text style={styles.storeTitle}>{store.name}</Text>
 
-            {cart[prod.id] ? (
-              <View style={styles.quantityContainer}>
-                <TouchableOpacity onPress={() => decreaseQuantity(prod.id)}>
-                  <Text style={styles.qtyButton}>-</Text>
-                </TouchableOpacity>
-                <Text style={styles.qtyText}>{cart[prod.id]}</Text>
-                <TouchableOpacity onPress={() => increaseQuantity(prod.id)}>
-                  <Text style={styles.qtyButton}>+</Text>
-                </TouchableOpacity>
+        {filteredProducts.length === 0 ? (
+          <Text style={styles.notFound}>No products found</Text>
+        ) : (
+          filteredProducts.map((product) => {
+            const qty = cartItems[product.id]?.quantity || 0;
+
+            return (
+              <View key={product.id} style={styles.productCard}>
+                <Image source={{ uri: product.image }} style={styles.productImage} />
+                <View style={{ marginLeft: 10, flex: 1 }}>
+                  <Text style={styles.productName}>{product.title}</Text>
+                  <Text style={styles.productPrice}>₹{product.price}</Text>
+
+                  {qty > 0 ? (
+                    <View style={styles.qtyContainer}>
+                      <TouchableOpacity onPress={() => removeFromCart(product.id)}>
+                        <Text style={styles.qtyButton}>-</Text>
+                      </TouchableOpacity>
+                      <Text style={styles.qtyText}>{qty}</Text>
+                      <TouchableOpacity onPress={() => addToCart(product)}>
+                        <Text style={styles.qtyButton}>+</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <TouchableOpacity
+                      style={styles.addButton}
+                      onPress={() => addToCart(product)}
+                    >
+                      <Text style={{ color: "#fff", fontWeight: "bold" }}>
+                        Add to Cart
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
               </View>
-            ) : (
-              <TouchableOpacity
-                style={styles.addButton}
-                onPress={() => addToCart(prod.id)}
-              >
-                <Text style={styles.addButtonText}>Add</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        ))}
+            );
+          })
+        )}
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f9f9f9" },
-  searchContainer: { margin: 10 },
-  searchInput: { backgroundColor: "#eee", padding: 8, borderRadius: 8 },
-  productList: { paddingHorizontal: 10, marginTop: 10 },
-  product: {
-    flexDirection: "row",
-    alignItems: "center",
+  loader: { flex: 1, justifyContent: "center", alignItems: "center" },
+  searchContainer: { padding: 10 },
+  searchInput: {
     backgroundColor: "#fff",
-    padding: 10,
-    marginVertical: 5,
     borderRadius: 8,
-    elevation: 2,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  storeTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    textAlign: "center",
+    marginBottom: 15,
+  },
+  productCard: {
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    marginBottom: 12,
+    borderRadius: 8,
+    padding: 10,
+    alignItems: "center",
   },
   productImage: { width: 80, height: 80, borderRadius: 8 },
-  productInfo: { flex: 1, marginLeft: 10 },
   productName: { fontSize: 16, fontWeight: "600" },
-  productPrice: { fontSize: 14, color: "gray", marginTop: 5 },
+  productPrice: { fontSize: 14, color: "green", marginVertical: 4 },
   addButton: {
     backgroundColor: "#4CAF50",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-  },
-  addButtonText: { color: "#fff", fontWeight: "600" },
-  quantityContainer: {
-    flexDirection: "row",
+    padding: 8,
+    borderRadius: 5,
+    marginTop: 5,
     alignItems: "center",
-    backgroundColor: "#eee",
-    borderRadius: 6,
-    paddingHorizontal: 5,
-    paddingVertical: 2,
   },
-  qtyButton: { fontSize: 18, width: 24, textAlign: "center", color: "#4CAF50" },
-  qtyText: { fontSize: 16, marginHorizontal: 5 },
+  qtyContainer: { flexDirection: "row", alignItems: "center", marginTop: 5 },
+  qtyButton: { fontSize: 20, width: 32, textAlign: "center", color: "#4CAF50" },
+  qtyText: { fontSize: 16, marginHorizontal: 10 },
+  notFound: { textAlign: "center", marginTop: 20, fontSize: 16, color: "gray" },
 });

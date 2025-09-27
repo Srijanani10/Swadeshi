@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "784860317115",
+    "project_id": "swadeshi-d6820",
+    "storage_bucket": "swadeshi-d6820.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:784860317115:android:f42c31efda2baf2f3af09e",
+        "android_client_info": {
+          "package_name": "com.swadeshi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6OqcrB9l_3rMwyivDE37lV63c1gdUot8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

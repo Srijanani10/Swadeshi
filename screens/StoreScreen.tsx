@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
-  TouchableOpacity,
   Image,
+  TouchableOpacity,
+  StyleSheet,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
-import Header from "../components/Header";
 import { useNavigation } from "@react-navigation/native";
+import Header from "../components/Header";
 
 type Store = {
   id: number;
@@ -17,47 +18,83 @@ type Store = {
   image: string;
 };
 
-const stores: Store[] = [
-  { id: 1, name: "GreenMart", image: "https://via.placeholder.com/80" },
-  { id: 2, name: "HerbalBazaar", image: "https://via.placeholder.com/80" },
-  { id: 3, name: "CraftHub", image: "https://via.placeholder.com/80" },
-];
-
-export default function StoresScreen() {
+export default function StoreScreen() {
   const navigation = useNavigation<any>();
+  const [stores, setStores] = useState<Store[]>([]);
+  const [filteredStores, setFilteredStores] = useState<Store[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
 
-  const filteredStores = stores.filter((store) =>
-    store.name.toLowerCase().includes(searchText.toLowerCase())
-  );
+  useEffect(() => {
+    const fetchStores = async () => {
+      try {
+        // Fake store data with unique names
+        const fakeStores: Store[] = [
+          { id: 1, name: "Handloom Emporium", image: "https://picsum.photos/seed/store1/100/100" },
+          { id: 2, name: "Organic Mart", image: "https://picsum.photos/seed/store2/100/100" },
+          { id: 3, name: "Eco Store", image: "https://picsum.photos/seed/store3/100/100" },
+          { id: 4, name: "Local Crafts", image: "https://picsum.photos/seed/store4/100/100" },
+          { id: 5, name: "Daily Needs Shop", image: "https://picsum.photos/seed/store5/100/100" },
+          { id: 6, name: "Green Grocers", image: "https://picsum.photos/seed/store6/100/100" },
+          { id: 7, name: "Artisan Hub", image: "https://picsum.photos/seed/store7/100/100" },
+          { id: 8, name: "Fresh Farm", image: "https://picsum.photos/seed/store8/100/100" },
+        ];
+        setStores(fakeStores);
+        setFilteredStores(fakeStores);
+      } catch (error) {
+        console.log("Error fetching stores:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStores();
+  }, []);
+
+  const handleSearch = (text: string) => {
+    setSearchText(text);
+    const filtered = stores.filter((store) =>
+      store.name.toLowerCase().includes(text.toLowerCase())
+    );
+    setFilteredStores(filtered);
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" color="#28a745" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <Header />
-
-      {/* Search Bar */}
+      <Header title="Stores" />
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
           placeholder="Search stores..."
           value={searchText}
-          onChangeText={setSearchText}
+          onChangeText={handleSearch}
         />
       </View>
-
-      <ScrollView style={styles.storeList}>
-        {filteredStores.map((store) => (
-          <TouchableOpacity
-            key={store.id}
-            style={styles.storeItem}
-            onPress={() =>
-              navigation.navigate("StoreProducts", { storeId: store.id })
-            }
-          >
-            <Image source={{ uri: store.image }} style={styles.storeImage} />
-            <Text style={styles.storeName}>{store.name}</Text>
-          </TouchableOpacity>
-        ))}
+      <ScrollView contentContainerStyle={{ padding: 10 }}>
+        {filteredStores.length === 0 ? (
+          <Text style={styles.notFound}>No stores found</Text>
+        ) : (
+          filteredStores.map((store) => (
+            <TouchableOpacity
+              key={store.id}
+              style={styles.storeCard}
+              onPress={() =>
+                navigation.navigate("StoreProducts", { storeId: store.id })
+              }
+            >
+              <Image source={{ uri: store.image }} style={styles.storeImage} />
+              <Text style={styles.storeName}>{store.name}</Text>
+            </TouchableOpacity>
+          ))
+        )}
       </ScrollView>
     </View>
   );
@@ -65,22 +102,30 @@ export default function StoresScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f9f9f9" },
-  searchContainer: { margin: 10 },
+  loader: { flex: 1, justifyContent: "center", alignItems: "center" },
+  searchContainer: { padding: 10 },
   searchInput: {
-    backgroundColor: "#eee",
-    padding: 8,
+    backgroundColor: "#fff",
     borderRadius: 8,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: "#ddd",
   },
-  storeList: { paddingHorizontal: 10, marginTop: 10 },
-  storeItem: {
+  storeCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
     padding: 10,
-    marginVertical: 5,
+    marginBottom: 10,
+    backgroundColor: "#fff",
     borderRadius: 8,
-    elevation: 2,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
   },
-  storeImage: { width: 80, height: 80, borderRadius: 8 },
-  storeName: { fontSize: 16, marginLeft: 15, fontWeight: "600" },
+  storeImage: { width: 60, height: 60, borderRadius: 8, marginRight: 10 },
+  storeName: { fontSize: 16, fontWeight: "600" },
+  notFound: { textAlign: "center", marginTop: 20, fontSize: 16, color: "gray" },
 });

@@ -1,20 +1,95 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Platform, Alert, Linking, PermissionsAndroid } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import Geolocation from "react-native-geolocation-service";
 
 export default function Header() {
   const navigation = useNavigation<any>();
+  const [locationName, setLocationName] = useState("Current Location");
+
+  // Request permission (Android)
+  const requestLocationPermission = async () => {
+    if (Platform.OS === "android") {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: "Location Permission",
+          message: "We need your location to show it",
+          buttonPositive: "OK",
+          buttonNegative: "Cancel",
+        }
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    }
+    return true;
+  };
+
+  // Reverse geocode coordinates to get location name
+  const getLocationName = async (latitude: number, longitude: number) => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+      );
+      const data = await response.json();
+      if (data.address) {
+        const city =
+          data.address.city ||
+          data.address.town ||
+          data.address.village ||
+          data.address.state;
+        setLocationName(city || "Current Location");
+      } else {
+        setLocationName("Current Location");
+      }
+    } catch (error) {
+      console.log("Error reverse geocoding:", error);
+      setLocationName("Current Location");
+    }
+  };
+
+  const openGoogleMaps = async () => {
+    const hasPermission = await requestLocationPermission();
+    if (!hasPermission) {
+      Alert.alert("Permission Denied", "Enable location permission to open Google Maps");
+      return;
+    }
+
+    Geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+
+        // Update location name
+        getLocationName(latitude, longitude);
+
+        // Open Google Maps at current location
+        const url = Platform.select({
+          ios: `http://maps.apple.com/?ll=${latitude},${longitude}`,
+          android: `geo:${latitude},${longitude}?q=${latitude},${longitude}(You)`,
+        });
+
+        Linking.openURL(url!).catch((err) => {
+          console.error("Failed to open map:", err);
+          Alert.alert("Error", "Unable to open maps");
+        });
+      },
+      (error) => {
+        console.log("Geolocation error:", error);
+        Alert.alert("Error", "Unable to fetch location. Make sure GPS is ON.");
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+    );
+  };
 
   return (
     <View style={styles.header}>
-      <Text style={styles.location}>📍 Current Location</Text>
+      <TouchableOpacity onPress={openGoogleMaps}>
+        <Text style={styles.location}>📍 {locationName}</Text>
+      </TouchableOpacity>
+
       <View style={styles.icons}>
-        {/* Cart Button */}
         <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
           <Text style={styles.icon}>🛒</Text>
         </TouchableOpacity>
-
-        {/* Profile Button */}
         <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
           <Text style={styles.icon}>👤</Text>
         </TouchableOpacity>

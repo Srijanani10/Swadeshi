@@ -1,6 +1,9 @@
 import React, { createContext, useState, ReactNode } from "react";
 
 export type ProductType = {
+  title: any;
+  description: ReactNode;
+  category(category: any): unknown;
   id: string;
   name: string;
   price: string;
