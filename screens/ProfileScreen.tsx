@@ -48,6 +48,10 @@ const ProfileScreen: React.FC = () => {
     ]);
   };
 
+  const handleSave = () => {
+    Alert.alert('Success', 'Your profile has been updated successfully!');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -126,15 +130,15 @@ const ProfileScreen: React.FC = () => {
             style={styles.menuButton}
             onPress={() => navigation.navigate('Orders')}
           >
-            <Icon name="shopping-cart" size={18} color="#333" style={styles.menuIcon} />
-            <Text style={styles.menuText}>My Orders</Text>
+            <Icon name="shopping-bag" size={18} color="#333" style={styles.menuIcon} />
+            <Text style={styles.menuText}>My Orders (Handloom Products)</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.menuButton}
             onPress={() => navigation.navigate('Cart')}
           >
-            <Icon name="shopping-basket" size={18} color="#333" style={styles.menuIcon} />
+            <Icon name="shopping-cart" size={18} color="#333" style={styles.menuIcon} />
             <Text style={styles.menuText}>Cart</Text>
           </TouchableOpacity>
 
@@ -144,6 +148,38 @@ const ProfileScreen: React.FC = () => {
           >
             <Icon name="map-marker" size={18} color="#333" style={styles.menuIcon} />
             <Text style={styles.menuText}>Addresses</Text>
+          </TouchableOpacity>
+
+          {/* Barter Market */}
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => navigation.navigate('Barter')}
+          >
+            <Icon name="exchange" size={18} color="#333" style={styles.menuIcon} />
+            <Text style={styles.menuText}>Barter Market</Text>
+          </TouchableOpacity>
+
+          {/* Seasonal Smart Bundles */}
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => navigation.navigate('SmartBundles')}
+          >
+            <Icon name="gift" size={18} color="#333" style={styles.menuIcon} />
+            <Text style={styles.menuText}>Seasonal Smart Bundles</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Wallet Section */}  
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>
+            <Icon name="wallet" size={18} color="#007bff" /> Wallet
+          </Text> 
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => navigation.navigate('Wallet')}
+          >
+            <Icon name="money" size={18} color="#333" style={styles.menuIcon} />
+            <Text style={styles.menuText}>My Wallet</Text>
           </TouchableOpacity>
         </View>
 
@@ -168,7 +204,7 @@ const ProfileScreen: React.FC = () => {
         </View>
 
         {/* Save Button */}
-        <TouchableOpacity style={styles.saveButton}>
+        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Icon name="save" size={18} color="#fff" style={{ marginRight: 8 }} />
           <Text style={styles.saveButtonText}>Save Changes</Text>
         </TouchableOpacity>

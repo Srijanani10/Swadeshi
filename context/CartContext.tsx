@@ -1,13 +1,14 @@
+// context/CartContext.tsx
 import React, { createContext, useState, ReactNode } from "react";
 
 export type ProductType = {
-  title: any;
-  description: ReactNode;
-  category(category: any): unknown;
-  id: string;
-  name: string;
-  price: string;
-  image: string;
+  id: string; // unique ID
+  name: string; // product name
+  title?: string; // optional, can use for display
+  description?: string; // product description
+  category?: string;
+  price: number | string; // price can be number or string
+  image: string; // product image URL
 };
 
 type CartItemsType = {

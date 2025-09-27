@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// ProductDetailsScreen.tsx
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -10,35 +11,62 @@ import {
   Share,
 } from "react-native";
 import Header from "../components/Header";
-import { useRoute } from "@react-navigation/native";
+import { useRoute, useNavigation } from "@react-navigation/native";
+import { CartContext, ProductType } from "../context/CartContext";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../navigation/AppNavigator";
 
-export type ProductType = {
-  id: number;
-  title: string;
-  price: number;
-  description: string;
-  category: string;
-  image: string;
+type EndorsementType = {
+  id: string;
+  groupName: string;
+  endorsedBy: number;
 };
 
 export default function ProductDetailsScreen() {
   const route = useRoute<any>();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { productId } = route.params;
+
+  const { addToCart } = useContext(CartContext);
+
   const [product, setProduct] = useState<ProductType | null>(null);
   const [products, setProducts] = useState<ProductType[]>([]);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(0);
+  const [endorsements, setEndorsements] = useState<EndorsementType[]>([]);
 
+  // Fetch product & all products for similar items
   useEffect(() => {
     const fetchData = async () => {
       try {
         const resProduct = await fetch(`https://fakestoreapi.com/products/${productId}`);
         const dataProduct = await resProduct.json();
-        setProduct(dataProduct);
+        setProduct({
+          id: String(dataProduct.id),
+          name: dataProduct.title,
+          price: dataProduct.price,
+          image: dataProduct.image,
+          description: dataProduct.description,
+          category: dataProduct.category,
+        });
 
         const resAll = await fetch(`https://fakestoreapi.com/products`);
         const dataAll = await resAll.json();
-        setProducts(dataAll);
+        const formattedAll = dataAll.map((p: any) => ({
+          id: String(p.id),
+          name: p.title,
+          price: p.price,
+          image: p.image,
+          description: p.description,
+          category: p.category,
+        }));
+        setProducts(formattedAll);
+
+        // Fake endorsements for demonstration
+        setEndorsements([
+          { id: "1", groupName: "Kerala Women SHG", endorsedBy: 50 },
+          { id: "2", groupName: "Tamil Nadu Handloom SHG", endorsedBy: 30 },
+        ]);
       } catch (error) {
         console.log("Error fetching product:", error);
       } finally {
@@ -68,8 +96,8 @@ export default function ProductDetailsScreen() {
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `Check out this product: ${product.title} for ₹${product.price}`,
-        title: product.title,
+        message: `Check out this product: ${product.name} for ₹${product.price}`,
+        title: product.name,
       });
     } catch (error) {
       console.log("Error sharing product:", error);
@@ -80,6 +108,43 @@ export default function ProductDetailsScreen() {
     (p) => p.id !== product.id && p.category === product.category
   );
 
+  const handleAddToCart = () => {
+    if (product) {
+      addToCart(product);
+      setQuantity(quantity + 1);
+    }
+  };
+
+  const handleRemoveFromCart = () => {
+    if (quantity > 0) setQuantity(quantity - 1);
+  };
+
+  const CommunityEndorsements = ({ endorsements }: { endorsements: EndorsementType[] }) => (
+    <View style={{ marginTop: 20 }}>
+      <Text style={{ fontSize: 16, fontWeight: "700", marginBottom: 10 }}>
+        Community Endorsements
+      </Text>
+      {endorsements.map((e) => (
+        <View
+          key={e.id}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            marginBottom: 8,
+            backgroundColor: "#e6f2ff",
+            padding: 8,
+            borderRadius: 6,
+          }}
+        >
+          <Text style={{ fontWeight: "600", flex: 1 }}>{e.groupName}</Text>
+          <Text style={{ color: "#007bff", fontWeight: "700" }}>
+            Certified by {e.endorsedBy} members
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <Header />
@@ -88,7 +153,7 @@ export default function ProductDetailsScreen() {
 
         <View style={styles.priceRow}>
           <View>
-            <Text style={styles.productName}>{product.title}</Text>
+            <Text style={styles.productName}>{product.name}</Text>
             <Text style={styles.productPrice}>₹{product.price}</Text>
           </View>
           <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
@@ -98,16 +163,16 @@ export default function ProductDetailsScreen() {
 
         <View style={styles.cartRow}>
           {quantity === 0 ? (
-            <TouchableOpacity style={styles.addButton} onPress={() => setQuantity(1)}>
+            <TouchableOpacity style={styles.addButton} onPress={handleAddToCart}>
               <Text style={styles.addButtonText}>Add to Cart</Text>
             </TouchableOpacity>
           ) : (
             <View style={styles.quantityContainer}>
-              <TouchableOpacity onPress={() => setQuantity(quantity - 1)}>
+              <TouchableOpacity onPress={handleRemoveFromCart}>
                 <Text style={styles.qtyButton}>-</Text>
               </TouchableOpacity>
               <Text style={styles.qtyText}>{quantity}</Text>
-              <TouchableOpacity onPress={() => setQuantity(quantity + 1)}>
+              <TouchableOpacity onPress={handleAddToCart}>
                 <Text style={styles.qtyButton}>+</Text>
               </TouchableOpacity>
             </View>
@@ -124,6 +189,8 @@ export default function ProductDetailsScreen() {
           <Text>{product.description}</Text>
         </View>
 
+        <CommunityEndorsements endorsements={endorsements} />
+
         {similarProducts.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Similar Products</Text>
@@ -132,7 +199,7 @@ export default function ProductDetailsScreen() {
                 <View key={p.id} style={styles.similarProductCard}>
                   <Image source={{ uri: p.image }} style={styles.similarImage} />
                   <Text style={styles.similarName} numberOfLines={1}>
-                    {p.title}
+                    {p.name}
                   </Text>
                   <Text style={styles.similarPrice}>₹{p.price}</Text>
                 </View>

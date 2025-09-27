@@ -19,6 +19,9 @@ import PaymentScreen from "../screens/PaymentScreen";
 import OrdersScreen from "../screens/OrdersScreen";
 import AddressesScreen from "../screens/AddressesScreen";
 import ChangePasswordScreen from "../screens/ChangePasswordScreen";
+import BarterScreen from "../screens/BarterScreen";
+import SmartBundlesScreen from "../screens/SmartBundlesScreen";
+import WalletScreen from "../screens/WalletScreen";
 
 // Context
 import { CartProvider } from "../context/CartContext";
@@ -32,6 +35,9 @@ export type RootStackParamList = {
   Orders: undefined;
   Addresses: undefined;
   ChangePassword: undefined;
+  Barter: undefined;
+  BundleDetails: { bundle: any };
+  Wallet: undefined;
 };
 
 export type RootTabParamList = {
@@ -94,6 +100,9 @@ export default function AppNavigator() {
           <RootStack.Screen name="Orders" component={OrdersScreen} />
           <RootStack.Screen name="Addresses" component={AddressesScreen} />
           <RootStack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+          <RootStack.Screen name="Barter" component={BarterScreen} />
+          <RootStack.Screen name="BundleDetails" component={SmartBundlesScreen} />
+          <RootStack.Screen name="Wallet" component={WalletScreen} />
         </RootStack.Navigator>
       </NavigationContainer>
     </CartProvider>
