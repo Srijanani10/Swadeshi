@@ -8,15 +8,14 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import Header from "../components/Header";
-import { CartContext } from "../context/CartContext";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import Header from "../components/Header";
+import { CartContext } from "../context/CartContext";
 import { RootStackParamList } from "../navigation/AppNavigator";
 
 export default function CartScreen() {
   const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
-
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   // Convert cart object to array for mapping
@@ -27,6 +26,11 @@ export default function CartScreen() {
     (sum, item) => sum + Number(item.product.price) * item.quantity,
     0
   );
+
+  const handleCheckout = () => {
+    // Navigate to Payment screen
+    navigation.navigate("Payment");
+  };
 
   return (
     <View style={styles.container}>
@@ -68,10 +72,7 @@ export default function CartScreen() {
       {cartArray.length > 0 && (
         <View style={styles.summary}>
           <Text style={styles.totalText}>Total: ₹{total}</Text>
-          <TouchableOpacity
-            style={styles.checkoutButton}
-            onPress={() => navigation.navigate("Payment")} // Navigate to Payment screen
-          >
+          <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
             <Text style={styles.checkoutText}>Checkout</Text>
           </TouchableOpacity>
         </View>

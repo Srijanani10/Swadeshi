@@ -1,3 +1,4 @@
+// AppNavigator.tsx
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -14,6 +15,11 @@ import ProductDetailsScreen from "../screens/ProductDetailsScreen";
 import StoreProductsScreen from "../screens/StoreProductsScreen";
 import PaymentScreen from "../screens/PaymentScreen";
 
+// New Screens
+import OrdersScreen from "../screens/OrdersScreen";
+import AddressesScreen from "../screens/AddressesScreen";
+import ChangePasswordScreen from "../screens/ChangePasswordScreen";
+
 // Context
 import { CartProvider } from "../context/CartContext";
 
@@ -22,6 +28,10 @@ export type RootStackParamList = {
   Cart: undefined;
   ProductDetail: { productId: number };
   StoreProducts: { storeId: number };
+  Payment: undefined;
+  Orders: undefined;
+  Addresses: undefined;
+  ChangePassword: undefined;
 };
 
 export type RootTabParamList = {
@@ -81,6 +91,9 @@ export default function AppNavigator() {
           <RootStack.Screen name="ProductDetail" component={ProductDetailsScreen} />
           <RootStack.Screen name="StoreProducts" component={StoreProductsScreen} />
           <RootStack.Screen name="Payment" component={PaymentScreen} />
+          <RootStack.Screen name="Orders" component={OrdersScreen} />
+          <RootStack.Screen name="Addresses" component={AddressesScreen} />
+          <RootStack.Screen name="ChangePassword" component={ChangePasswordScreen} />
         </RootStack.Navigator>
       </NavigationContainer>
     </CartProvider>

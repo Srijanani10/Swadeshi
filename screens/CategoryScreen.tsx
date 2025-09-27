@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  Animated,
 } from "react-native";
 import HomeHeader from "../components/Header";
 import { useNavigation } from "@react-navigation/native";
@@ -22,7 +23,6 @@ type ProductType = {
   category: string;
 };
 
-// Categories with icons
 const categories = [
   { id: "all", name: "All", icon: "cart-outline" },
   { id: "handlooms", name: "Handlooms", icon: "color-palette-outline", apiCategory: "jewelery" },
@@ -39,6 +39,7 @@ export default function CategoryScreen() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [products, setProducts] = useState<ProductType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pressedProduct, setPressedProduct] = useState<number | null>(null);
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
@@ -64,7 +65,6 @@ export default function CategoryScreen() {
     }
   };
 
-  // Group products per category
   const groupedProducts = categories.map((cat) => ({
     category: cat,
     products:
@@ -85,7 +85,7 @@ export default function CategoryScreen() {
     <View style={styles.container}>
       <HomeHeader />
       <View style={styles.content}>
-        {/* Left: Vertical Categories */}
+        {/* Left: Categories */}
         <ScrollView style={styles.categoryList}>
           {categories.map((cat) => (
             <TouchableOpacity
@@ -95,12 +95,15 @@ export default function CategoryScreen() {
                 selectedCategory === cat.id && styles.categoryItemSelected,
               ]}
               onPress={() => scrollToCategory(cat.id)}
+              activeOpacity={0.7}
             >
-              <Ionicons
-                name={cat.icon}
-                size={24}
-                color={selectedCategory === cat.id ? "#fff" : "#28a745"}
-              />
+              <Animated.View style={{ transform: [{ scale: selectedCategory === cat.id ? 1.1 : 1 }] }}>
+                <Ionicons
+                  name={cat.icon}
+                  size={24}
+                  color={selectedCategory === cat.id ? "#fff" : "#28a745"}
+                />
+              </Animated.View>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -123,10 +126,14 @@ export default function CategoryScreen() {
                 {products.map((product) => (
                   <TouchableOpacity
                     key={product.id}
-                    style={styles.productCard}
-                    onPress={() =>
-                      navigation.navigate("ProductDetail", { productId: product.id })
-                    }
+                    style={[
+                      styles.productCard,
+                      pressedProduct === product.id && { transform: [{ scale: 0.95 }] },
+                    ]}
+                    activeOpacity={0.8}
+                    onPressIn={() => setPressedProduct(product.id)}
+                    onPressOut={() => setPressedProduct(null)}
+                    onPress={() => navigation.navigate("ProductDetail", { productId: product.id })}
                   >
                     <Image source={{ uri: product.image }} style={styles.productImage} />
                     <Text style={styles.productName}>{product.title}</Text>
