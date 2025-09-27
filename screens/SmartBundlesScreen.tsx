@@ -29,7 +29,8 @@ export type BundleType = {
   products: ProductType[];
 };
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+// Make sure your navigation types match the params for BundleDetails
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'SeasonalBundles'>;
 
 const SeasonalBundlesScreen: React.FC = () => {
   const [bundles, setBundles] = useState<BundleType[]>([]);
@@ -42,26 +43,11 @@ const SeasonalBundlesScreen: React.FC = () => {
         const res = await fetch('https://fakestoreapi.com/products');
         const data: ProductType[] = await res.json();
 
-        // Example: create fake bundles by picking some products
+        // Create fake bundles
         const seasonalBundles: BundleType[] = [
-          {
-            id: 1,
-            title: 'Diwali Eco Bundle',
-            season: 'Diwali',
-            products: data.slice(0, 3),
-          },
-          {
-            id: 2,
-            title: 'Pongal Celebration Pack',
-            season: 'Pongal',
-            products: data.slice(3, 6),
-          },
-          {
-            id: 3,
-            title: 'Monsoon Essentials',
-            season: 'Rainy Season',
-            products: data.slice(6, 9),
-          },
+          { id: 1, title: 'Diwali Eco Bundle', season: 'Diwali', products: data.slice(0, 3) },
+          { id: 2, title: 'Pongal Celebration Pack', season: 'Pongal', products: data.slice(3, 6) },
+          { id: 3, title: 'Monsoon Essentials', season: 'Rainy Season', products: data.slice(6, 9) },
         ];
 
         setBundles(seasonalBundles);

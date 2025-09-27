@@ -22,6 +22,9 @@ import ChangePasswordScreen from "../screens/ChangePasswordScreen";
 import BarterScreen from "../screens/BarterScreen";
 import SmartBundlesScreen from "../screens/SmartBundlesScreen";
 import WalletScreen from "../screens/WalletScreen";
+import SkillsScreen from "../screens/SkillsScreen";
+import BundleDetailsScreen from "../screens/BundleDetailsScreen";
+import NegotiatorScreen from "../screens/NegotiatorScreen";
 
 // Context
 import { CartProvider } from "../context/CartContext";
@@ -38,6 +41,8 @@ export type RootStackParamList = {
   Barter: undefined;
   BundleDetails: { bundle: any };
   Wallet: undefined;
+  Skills: undefined;
+  Negotiator: { product: any };
 };
 
 export type RootTabParamList = {
@@ -103,6 +108,8 @@ export default function AppNavigator() {
           <RootStack.Screen name="Barter" component={BarterScreen} />
           <RootStack.Screen name="BundleDetails" component={SmartBundlesScreen} />
           <RootStack.Screen name="Wallet" component={WalletScreen} />
+          <RootStack.Screen name="Skills" component={SkillsScreen} />
+          <RootStack.Screen name="Negotiator" component={NegotiatorScreen} />
         </RootStack.Navigator>
       </NavigationContainer>
     </CartProvider>

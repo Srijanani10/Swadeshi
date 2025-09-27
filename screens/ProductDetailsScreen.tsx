@@ -35,7 +35,6 @@ export default function ProductDetailsScreen() {
   const [quantity, setQuantity] = useState(0);
   const [endorsements, setEndorsements] = useState<EndorsementType[]>([]);
 
-  // Fetch product & all products for similar items
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -62,7 +61,6 @@ export default function ProductDetailsScreen() {
         }));
         setProducts(formattedAll);
 
-        // Fake endorsements for demonstration
         setEndorsements([
           { id: "1", groupName: "Kerala Women SHG", endorsedBy: 50 },
           { id: "2", groupName: "Tamil Nadu Handloom SHG", endorsedBy: 30 },
@@ -117,6 +115,13 @@ export default function ProductDetailsScreen() {
 
   const handleRemoveFromCart = () => {
     if (quantity > 0) setQuantity(quantity - 1);
+  };
+
+  const handleNegotiate = () => {
+    navigation.navigate("Negotiator", {
+      productName: product.name,
+      productPrice: product.price,
+    });
   };
 
   const CommunityEndorsements = ({ endorsements }: { endorsements: EndorsementType[] }) => (
@@ -177,6 +182,11 @@ export default function ProductDetailsScreen() {
               </TouchableOpacity>
             </View>
           )}
+
+          {/* New Negotiate Price button */}
+          <TouchableOpacity style={styles.negotiateButton} onPress={handleNegotiate}>
+            <Text style={styles.negotiateText}>Negotiate Price</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.section}>
@@ -223,11 +233,13 @@ const styles = StyleSheet.create({
   shareButton: { backgroundColor: "#eee", padding: 8, borderRadius: 6 },
   shareText: { color: "#333" },
   cartRow: { alignItems: "flex-end", marginTop: 10 },
-  addButton: { backgroundColor: "#4CAF50", padding: 12, borderRadius: 6 },
+  addButton: { backgroundColor: "#4CAF50", padding: 12, borderRadius: 6, marginBottom: 8 },
   addButtonText: { color: "#fff", fontWeight: "600", fontSize: 16 },
   quantityContainer: { flexDirection: "row", alignItems: "center" },
   qtyButton: { fontSize: 20, width: 32, textAlign: "center", color: "#4CAF50" },
   qtyText: { fontSize: 16, marginHorizontal: 10 },
+  negotiateButton: { backgroundColor: "#FF9800", padding: 10, borderRadius: 6, marginTop: 10 },
+  negotiateText: { color: "#fff", fontWeight: "600", fontSize: 16, textAlign: "center" },
   section: { marginTop: 20 },
   sectionTitle: { fontSize: 16, fontWeight: "700", marginBottom: 5 },
   similarProductCard: { width: 120, marginRight: 15, alignItems: "center", padding: 8, backgroundColor: "#fff", borderRadius: 8 },

@@ -167,6 +167,15 @@ const ProfileScreen: React.FC = () => {
             <Icon name="gift" size={18} color="#333" style={styles.menuIcon} />
             <Text style={styles.menuText}>Seasonal Smart Bundles</Text>
           </TouchableOpacity>
+          {/* Skills Marketplace */}
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => navigation.navigate('Skills')} 
+          >
+            <Icon name="briefcase" size={18} color="#333" style={styles.menuIcon} />
+            <Text style={styles.menuText}>Skills Marketplace</Text>
+          </TouchableOpacity>
+
         </View>
 
         {/* Wallet Section */}  
