@@ -10,9 +10,14 @@ import {
 } from "react-native";
 import Header from "../components/Header";
 import { CartContext } from "../context/CartContext";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../navigation/AppNavigator";
 
 export default function CartScreen() {
   const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
+
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   // Convert cart object to array for mapping
   const cartArray = Object.values(cartItems);
@@ -63,7 +68,10 @@ export default function CartScreen() {
       {cartArray.length > 0 && (
         <View style={styles.summary}>
           <Text style={styles.totalText}>Total: ₹{total}</Text>
-          <TouchableOpacity style={styles.checkoutButton}>
+          <TouchableOpacity
+            style={styles.checkoutButton}
+            onPress={() => navigation.navigate("Payment")} // Navigate to Payment screen
+          >
             <Text style={styles.checkoutText}>Checkout</Text>
           </TouchableOpacity>
         </View>

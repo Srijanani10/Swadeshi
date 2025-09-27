@@ -12,6 +12,7 @@ import HomeHeader from "../components/Header";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 type ProductType = {
   id: number;
@@ -21,15 +22,15 @@ type ProductType = {
   category: string;
 };
 
-// Categories
+// Categories with icons
 const categories = [
-  { id: "all", name: "All", emoji: "🛒" },
-  { id: "handlooms", name: "Handlooms", emoji: "🧵", apiCategory: "jewelery" },
-  { id: "fashion", name: "Fashion", emoji: "👗", apiCategory: "women's clothing" },
-  { id: "stationary", name: "Stationary", emoji: "✏️", apiCategory: "electronics" },
-  { id: "kids", name: "Kids & Toys", emoji: "🧸", apiCategory: "men's clothing" },
-  { id: "garden", name: "Garden", emoji: "🌱", apiCategory: "electronics" },
-  { id: "medicines", name: "Medicines", emoji: "💊", apiCategory: "jewelery" },
+  { id: "all", name: "All", icon: "cart-outline" },
+  { id: "handlooms", name: "Handlooms", icon: "color-palette-outline", apiCategory: "jewelery" },
+  { id: "fashion", name: "Fashion", icon: "shirt-outline", apiCategory: "women's clothing" },
+  { id: "stationary", name: "Stationary", icon: "pencil-outline", apiCategory: "electronics" },
+  { id: "kids", name: "Kids & Toys", icon: "game-controller-outline", apiCategory: "men's clothing" },
+  { id: "garden", name: "Garden", icon: "leaf-outline", apiCategory: "electronics" },
+  { id: "medicines", name: "Medicines", icon: "medkit-outline", apiCategory: "jewelery" },
 ];
 
 export default function CategoryScreen() {
@@ -41,7 +42,6 @@ export default function CategoryScreen() {
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  // Fetch products from Fake Store API
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -96,7 +96,11 @@ export default function CategoryScreen() {
               ]}
               onPress={() => scrollToCategory(cat.id)}
             >
-              <Text style={[styles.categoryEmoji, selectedCategory === cat.id && { color: "#fff" }]}>{cat.emoji}</Text>
+              <Ionicons
+                name={cat.icon}
+                size={24}
+                color={selectedCategory === cat.id ? "#fff" : "#28a745"}
+              />
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -110,7 +114,11 @@ export default function CategoryScreen() {
                 categoryPositions.current[category.id] = event.nativeEvent.layout.y;
               }}
             >
-              <Text style={styles.sectionTitle}>{category.name}</Text>
+              <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }}>
+                <Ionicons name={category.icon} size={18} color="#28a745" />
+                <Text style={styles.sectionTitle}>{category.name}</Text>
+              </View>
+
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {products.map((product) => (
                   <TouchableOpacity
@@ -150,9 +158,8 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
   },
   categoryItemSelected: { backgroundColor: "#28a745", borderColor: "#28a745" },
-  categoryEmoji: { fontSize: 24 },
   productScroll: { width: "82%", paddingLeft: 10, paddingVertical: 10 },
-  sectionTitle: { fontSize: 16, fontWeight: "600", marginBottom: 10 },
+  sectionTitle: { fontSize: 16, fontWeight: "600", marginLeft: 6 },
   productCard: {
     width: 100,
     backgroundColor: "#fff",

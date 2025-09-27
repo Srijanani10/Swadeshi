@@ -1,7 +1,17 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Platform, Alert, Linking, PermissionsAndroid } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Platform,
+  Alert,
+  Linking,
+  PermissionsAndroid,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Geolocation from "react-native-geolocation-service";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 export default function Header() {
   const navigation = useNavigation<any>();
@@ -50,7 +60,10 @@ export default function Header() {
   const openGoogleMaps = async () => {
     const hasPermission = await requestLocationPermission();
     if (!hasPermission) {
-      Alert.alert("Permission Denied", "Enable location permission to open Google Maps");
+      Alert.alert(
+        "Permission Denied",
+        "Enable location permission to open Google Maps"
+      );
       return;
     }
 
@@ -82,16 +95,20 @@ export default function Header() {
 
   return (
     <View style={styles.header}>
-      <TouchableOpacity onPress={openGoogleMaps}>
-        <Text style={styles.location}>📍 {locationName}</Text>
+      <TouchableOpacity
+        style={styles.locationContainer}
+        onPress={openGoogleMaps}
+      >
+        <Ionicons name="location-sharp" size={20} color="#4CAF50" />
+        <Text style={styles.location}>{locationName}</Text>
       </TouchableOpacity>
 
       <View style={styles.icons}>
         <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
-          <Text style={styles.icon}>🛒</Text>
+          <Ionicons name="cart" size={26} color="#4CAF50" />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
-          <Text style={styles.icon}>👤</Text>
+          <Ionicons name="person" size={26} color="#4CAF50" style={{ marginLeft: 15 }} />
         </TouchableOpacity>
       </View>
     </View>
@@ -108,7 +125,10 @@ const styles = StyleSheet.create({
     elevation: 4,
     marginTop: 10,
   },
-  location: { fontSize: 16, fontWeight: "600" },
-  icons: { flexDirection: "row" },
-  icon: { fontSize: 24, marginLeft: 15 },
+  locationContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  location: { fontSize: 16, fontWeight: "600", marginLeft: 5 },
+  icons: { flexDirection: "row", alignItems: "center" },
 });

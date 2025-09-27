@@ -2,6 +2,7 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 // Screens
 import HomeScreen from "../screens/HomeScreen";
@@ -11,6 +12,7 @@ import ProfileScreen from "../screens/ProfileScreen";
 import CartScreen from "../screens/CartScreen";
 import ProductDetailsScreen from "../screens/ProductDetailsScreen";
 import StoreProductsScreen from "../screens/StoreProductsScreen";
+import PaymentScreen from "../screens/PaymentScreen";
 
 // Context
 import { CartProvider } from "../context/CartContext";
@@ -34,27 +36,37 @@ const Tab = createBottomTabNavigator<RootTabParamList>();
 
 function TabsNavigator() {
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
-      <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{ tabBarLabel: "🏠 Home" }}
-      />
-      <Tab.Screen
-        name="Categories"
-        component={CategoryScreen}
-        options={{ tabBarLabel: "📚 Categories" }}
-      />
-      <Tab.Screen
-        name="Stores"
-        component={StoreScreen}
-        options={{ tabBarLabel: "🏪 Stores" }}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{ tabBarLabel: "👤 Profile" }}
-      />
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName = "";
+
+          switch (route.name) {
+            case "Home":
+              iconName = focused ? "home" : "home-outline";
+              break;
+            case "Categories":
+              iconName = focused ? "book" : "book-outline";
+              break;
+            case "Stores":
+              iconName = focused ? "storefront" : "storefront-outline";
+              break;
+            case "Profile":
+              iconName = focused ? "person" : "person-outline";
+              break;
+          }
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: "#4CAF50",
+        tabBarInactiveTintColor: "gray",
+      })}
+    >
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Categories" component={CategoryScreen} />
+      <Tab.Screen name="Stores" component={StoreScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }
@@ -66,14 +78,9 @@ export default function AppNavigator() {
         <RootStack.Navigator screenOptions={{ headerShown: false }}>
           <RootStack.Screen name="Tabs" component={TabsNavigator} />
           <RootStack.Screen name="Cart" component={CartScreen} />
-          <RootStack.Screen
-            name="ProductDetail"
-            component={ProductDetailsScreen}
-          />
-          <RootStack.Screen
-            name="StoreProducts"
-            component={StoreProductsScreen}
-          />
+          <RootStack.Screen name="ProductDetail" component={ProductDetailsScreen} />
+          <RootStack.Screen name="StoreProducts" component={StoreProductsScreen} />
+          <RootStack.Screen name="Payment" component={PaymentScreen} />
         </RootStack.Navigator>
       </NavigationContainer>
     </CartProvider>

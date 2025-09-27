@@ -14,15 +14,16 @@ import { CartContext, ProductType } from "../context/CartContext";
 import { useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const categories = [
-  { id: "1", name: "All", emoji: "🛒" },
-  { id: "2", name: "Handlooms", emoji: "🧵" },
-  { id: "3", name: "Fashion", emoji: "👗" },
-  { id: "4", name: "Stationary", emoji: "✏️" },
-  { id: "5", name: "Kids & Toys", emoji: "🧸" },
-  { id: "6", name: "Garden", emoji: "🌱" },
-  { id: "7", name: "Medicines", emoji: "💊" },
+  { id: "1", name: "All", icon: "cart-outline" },
+  { id: "2", name: "Handlooms", icon: "color-palette-outline" },
+  { id: "3", name: "Fashion", icon: "shirt-outline" },
+  { id: "4", name: "Stationary", icon: "pencil-outline" },
+  { id: "5", name: "Kids & Toys", icon: "game-controller-outline" },
+  { id: "6", name: "Garden", icon: "leaf-outline" },
+  { id: "7", name: "Medicines", icon: "medkit-outline" },
 ];
 
 const nearbyStores = [
@@ -41,7 +42,6 @@ export default function HomeScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const categoryRefs = useRef<{ [key: string]: number }>({});
 
-  // Fetch products from Fake Store API
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -87,19 +87,15 @@ export default function HomeScreen() {
         {/* Search */}
         <View style={styles.searchContainer}>
           <TextInput style={styles.searchInput} placeholder="Search products..." />
-          <Text style={styles.searchEmoji}>🔍</Text>
+          <Ionicons name="search-outline" size={22} color="#888" style={{ marginLeft: 8 }} />
         </View>
 
         {/* Categories */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.categories}
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categories}>
           {categories.map((item) => (
             <TouchableOpacity key={item.id} onPress={() => handleCategoryPress(item.id)}>
               <View style={styles.categoryItem}>
-                <Text style={styles.categoryEmoji}>{item.emoji}</Text>
+                <Ionicons name={item.icon} size={28} color="#28a745" />
                 <Text style={styles.categoryText}>{item.name}</Text>
               </View>
             </TouchableOpacity>
@@ -108,17 +104,10 @@ export default function HomeScreen() {
 
         {/* Nearby Stores */}
         <Text style={styles.sectionTitle}>Nearby Stores</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.nearbyStoresContainer}
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.nearbyStoresContainer}>
           {nearbyStores.map((store) => (
             <View key={store.id} style={styles.storeCard}>
-              <Image
-                source={{ uri: store.image }}
-                style={styles.storeImage}
-              />
+              <Image source={{ uri: store.image }} style={styles.storeImage} />
               <Text style={styles.storeName}>{store.name}</Text>
             </View>
           ))}
@@ -141,25 +130,16 @@ export default function HomeScreen() {
 
                 {qty > 0 ? (
                   <View style={styles.quantityContainer}>
-                    <TouchableOpacity
-                      style={styles.quantityButton}
-                      onPress={() => removeFromCart(product.id)}
-                    >
+                    <TouchableOpacity style={styles.quantityButton} onPress={() => removeFromCart(product.id)}>
                       <Text style={styles.quantityButtonText}>-</Text>
                     </TouchableOpacity>
                     <Text style={styles.quantityText}>{qty}</Text>
-                    <TouchableOpacity
-                      style={styles.quantityButton}
-                      onPress={() => addToCart(product)}
-                    >
+                    <TouchableOpacity style={styles.quantityButton} onPress={() => addToCart(product)}>
                       <Text style={styles.quantityButtonText}>+</Text>
                     </TouchableOpacity>
                   </View>
                 ) : (
-                  <TouchableOpacity
-                    style={styles.addButton}
-                    onPress={() => addToCart(product)}
-                  >
+                  <TouchableOpacity style={styles.addButton} onPress={() => addToCart(product)}>
                     <Text style={styles.addButtonText}>Add</Text>
                   </TouchableOpacity>
                 )}
@@ -177,12 +157,14 @@ export default function HomeScreen() {
               categoryRefs.current[cat.id] = event.nativeEvent.layout.y;
             }}
           >
-            <Text style={styles.categoryHeader}>
-              {cat.emoji} {cat.name}
-            </Text>
+            <View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 10, marginVertical: 8 }}>
+              <Ionicons name={cat.icon} size={20} color="#28a745" />
+              <Text style={styles.categoryHeader}>{cat.name}</Text>
+            </View>
+
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingHorizontal: 10 }}>
               {products
-                .filter((p, index) => index % (categories.length - 1) === Number(cat.id) - 2) // Simple filter to differentiate per category
+                .filter((p, index) => index % (categories.length - 1) === Number(cat.id) - 2)
                 .map((product) => {
                   const qty = cartItems[product.id]?.quantity || 0;
                   return (
@@ -197,25 +179,16 @@ export default function HomeScreen() {
 
                       {qty > 0 ? (
                         <View style={styles.quantityContainer}>
-                          <TouchableOpacity
-                            style={styles.quantityButton}
-                            onPress={() => removeFromCart(product.id)}
-                          >
+                          <TouchableOpacity style={styles.quantityButton} onPress={() => removeFromCart(product.id)}>
                             <Text style={styles.quantityButtonText}>-</Text>
                           </TouchableOpacity>
                           <Text style={styles.quantityText}>{qty}</Text>
-                          <TouchableOpacity
-                            style={styles.quantityButton}
-                            onPress={() => addToCart(product)}
-                          >
+                          <TouchableOpacity style={styles.quantityButton} onPress={() => addToCart(product)}>
                             <Text style={styles.quantityButtonText}>+</Text>
                           </TouchableOpacity>
                         </View>
                       ) : (
-                        <TouchableOpacity
-                          style={styles.addButton}
-                          onPress={() => addToCart(product)}
-                        >
+                        <TouchableOpacity style={styles.addButton} onPress={() => addToCart(product)}>
                           <Text style={styles.addButtonText}>Add</Text>
                         </TouchableOpacity>
                       )}
@@ -230,11 +203,11 @@ export default function HomeScreen() {
   );
 }
 
+// Styles remain mostly unchanged, just remove emoji references
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
   loaderContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
 
-  // Search
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -246,24 +219,18 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   searchInput: { flex: 1, height: 40 },
-  searchEmoji: { fontSize: 22, marginLeft: 8 },
 
-  // Categories
   categories: { marginTop: 5, paddingHorizontal: 10 },
   categoryItem: { alignItems: "center", marginRight: 15 },
-  categoryEmoji: { fontSize: 28 },
   categoryText: { fontSize: 12, marginTop: 4 },
 
-  // Section titles
   sectionTitle: { fontSize: 18, fontWeight: "bold", marginVertical: 10, paddingHorizontal: 10 },
 
-  // Nearby stores
   nearbyStoresContainer: { paddingHorizontal: 10, marginBottom: 5 },
   storeCard: { alignItems: "center", marginRight: 15 },
   storeImage: { width: 80, height: 80, borderRadius: 10 },
   storeName: { marginTop: 5 },
 
-  // Product cards
   productCard: {
     width: 120,
     padding: 8,
@@ -275,9 +242,8 @@ const styles = StyleSheet.create({
   },
   productImage: { width: 80, height: 80, borderRadius: 8, resizeMode: "contain" },
   productPrice: { color: "green", marginTop: 4, fontWeight: "bold" },
-  categoryHeader: { fontSize: 16, fontWeight: "600", marginVertical: 8, paddingHorizontal: 10 },
+  categoryHeader: { fontSize: 16, fontWeight: "600", marginLeft: 8 },
 
-  // Add/quantity buttons
   addButton: { marginTop: 6, backgroundColor: "#28a745", paddingVertical: 4, paddingHorizontal: 12, borderRadius: 5 },
   addButtonText: { color: "#fff", fontWeight: "bold" },
   quantityContainer: { flexDirection: "row", alignItems: "center", marginTop: 6 },
